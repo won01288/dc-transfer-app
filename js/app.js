@@ -1,18 +1,18 @@
-// 12개사 + 기타 (plan.md 2.4 참고)
+// 12개사 + 기타 (plan.md 2.4 참고) / 교보생명만 간사기관 뱃지 표시
 const COMPANIES = [
-  "교보생명 (간사기관)",
-  "삼성증권",
-  "국민은행",
-  "삼성화재",
-  "농협은행",
-  "신한은행",
-  "미래에셋",
-  "하나은행",
-  "산업은행",
-  "한국투자증권",
-  "삼성생명",
-  "NH투자증권",
-  "기타",
+  { name: "교보생명", badge: "간사기관" },
+  { name: "삼성증권" },
+  { name: "국민은행" },
+  { name: "삼성화재" },
+  { name: "농협은행" },
+  { name: "신한은행" },
+  { name: "미래에셋" },
+  { name: "하나은행" },
+  { name: "산업은행" },
+  { name: "한국투자증권" },
+  { name: "삼성생명" },
+  { name: "NH투자증권" },
+  { name: "기타" },
 ];
 
 // 신청자 정보를 담아두는 상태 객체 (단계를 넘어가며 계속 채워짐)
@@ -24,7 +24,6 @@ const state = {
   company: "",
   companyOther: "",
   verified: false,
-  blocked: false,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -63,8 +62,6 @@ async function loadConfig() {
 
 // 1단계: 사번+성명 검증
 $("btnVerify").addEventListener("click", async () => {
-  if (state.blocked) return;
-
   const empId = $("inputEmpId").value.trim();
   const name = $("inputName").value.trim();
 
@@ -99,15 +96,12 @@ $("btnVerify").addEventListener("click", async () => {
       showMessage("verifyMessage", "", "");
       showStep(2);
     } else {
-      // plan.md 2.2: 불일치 시 이후 입력 차단
-      state.blocked = true;
-      $("inputEmpId").disabled = true;
-      $("inputName").disabled = true;
-      $("btnVerify").disabled = true;
+      // 불일치 시 안내 문구만 보여주고, 바로 다시 입력/재시도할 수 있게 둔다
       showMessage("verifyMessage", res.message, "error");
     }
   } catch (err) {
     showMessage("verifyMessage", "확인 중 오류가 발생했습니다: " + err.message, "error");
+  } finally {
     $("btnVerify").disabled = false;
     $("btnVerify").textContent = "확인";
   }
@@ -131,19 +125,20 @@ $("btnStep2Next").addEventListener("click", () => {
   showStep(3);
 });
 
-// 3단계: 금융사 라디오 리스트 렌더링
+// 3단계: 금융사 카드 그리드 렌더링 (design.md: 2열 터치형 카드)
 function renderCompanyList() {
   const wrap = $("companyList");
-  wrap.innerHTML = COMPANIES.map((c, idx) => `
-    <label class="radio-item" data-company="${c}">
-      <input type="radio" name="company" value="${c}" />
-      <span>${c}</span>
+  wrap.innerHTML = COMPANIES.map((c) => `
+    <label class="company-card" data-company="${c.name}">
+      ${c.badge ? `<span class="badge-tag">${c.badge}</span>` : ""}
+      <input type="radio" name="company" value="${c.name}" />
+      <span>${c.name}</span>
     </label>
   `).join("");
 
-  wrap.querySelectorAll(".radio-item").forEach((item) => {
+  wrap.querySelectorAll(".company-card").forEach((item) => {
     item.addEventListener("click", () => {
-      wrap.querySelectorAll(".radio-item").forEach((i) => i.classList.remove("selected"));
+      wrap.querySelectorAll(".company-card").forEach((i) => i.classList.remove("selected"));
       item.classList.add("selected");
       item.querySelector("input").checked = true;
 
@@ -213,7 +208,7 @@ $("btnSubmit").addEventListener("click", async () => {
 
     if (res.success) {
       const dt = new Date(res.submittedAt);
-      $("doneAt").textContent = "제출 일시: " + dt.toLocaleString("ko-KR");
+      $("doneAt").textContent = "제출 일시 " + dt.toLocaleString("ko-KR");
       showStep(0);
       $("stepDone").classList.remove("hidden");
     } else {

@@ -1,15 +1,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DB → DC 퇴직연금 제도전환 신청</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css" />
 <link rel="stylesheet" href="css/styles.css" />
 
 <div class="page">
   <div class="banner">
     <h1>DB → DC 퇴직연금 제도전환 신청자 세부내용 확인</h1>
-    <p>본 페이지는 DB→DC 퇴직연금 제도전환을 신청하신 분들의 세부 내용을 확인하기 위한 페이지입니다.</p>
+    <p>본 페이지는 DB→DC 퇴직연금 제도전환을 신청하신 분들의 세부 내용을 확인하기 위한 페이지예요.</p>
     <div class="meta">
-      <span>퇴직연금 간사기관: 교보생명</span>
-      <span id="roundDisplay">접수회차: 불러오는 중...</span>
+      <span>퇴직연금 간사기관 · 교보생명</span>
+      <span id="roundDisplay">접수회차 불러오는 중...</span>
     </div>
   </div>
 
@@ -32,7 +33,9 @@
       <label>성명<span class="required">*</span></label>
       <input type="text" id="inputName" placeholder="성명을 입력하세요" />
     </div>
-    <button class="btn btn-primary" id="btnVerify">확인</button>
+    <div class="action-bar">
+      <button class="btn btn-primary" id="btnVerify">확인</button>
+    </div>
   </section>
 
   <!-- 2단계: 인적사항 -->
@@ -54,7 +57,7 @@
       <label>직위<span class="required">*</span></label>
       <input type="text" id="inputPosition" placeholder="직위를 입력하세요" />
     </div>
-    <div class="btn-row">
+    <div class="action-bar btn-row">
       <button class="btn btn-secondary" data-back="1">이전</button>
       <button class="btn btn-primary" id="btnStep2Next">다음</button>
     </div>
@@ -63,12 +66,12 @@
   <!-- 3단계: 금융사 선택 -->
   <section class="card hidden" id="step3">
     <h2>3. DC 적용 희망 금융사</h2>
-    <div class="radio-list" id="companyList"></div>
+    <div class="company-grid" id="companyList"></div>
     <div class="field hidden" id="companyOtherWrap" style="margin-top: 12px;">
       <label>기타 금융사명<span class="required">*</span></label>
       <input type="text" id="inputCompanyOther" placeholder="희망하는 금융사명을 입력하세요" />
     </div>
-    <div class="btn-row" style="margin-top: 14px;">
+    <div class="action-bar btn-row">
       <button class="btn btn-secondary" data-back="2">이전</button>
       <button class="btn btn-primary" id="btnStep3Next">다음</button>
     </div>
@@ -85,7 +88,7 @@
       <tr><th>희망 금융사</th><td id="sumCompany"></td></tr>
     </table>
     <div id="submitMessage" style="margin-top: 14px;"></div>
-    <div class="btn-row" style="margin-top: 14px;">
+    <div class="action-bar btn-row">
       <button class="btn btn-secondary" data-back="3">이전</button>
       <button class="btn btn-primary" id="btnSubmit">제출하기</button>
     </div>
@@ -94,7 +97,7 @@
   <!-- 완료 화면 -->
   <section class="card hidden center" id="stepDone">
     <div class="complete-icon">✅</div>
-    <h2>제출이 완료되었습니다</h2>
+    <h2>제출이 완료됐어요!</h2>
     <p id="doneAt" class="hint"></p>
   </section>
 </div>
