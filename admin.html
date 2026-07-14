@@ -1,0 +1,70 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>퇴직연금 제도전환 신청 관리자</title>
+<link rel="stylesheet" href="css/styles.css" />
+
+<div class="page">
+  <div class="banner">
+    <h1>DB → DC 제도전환 신청 관리자 페이지</h1>
+    <p>제출된 신청 내역을 조회/검색/필터링 합니다.</p>
+  </div>
+
+  <!-- 로그인 화면 -->
+  <section class="card" id="loginSection">
+    <h2>관리자 로그인</h2>
+    <div id="loginMessage"></div>
+    <div class="field">
+      <label>비밀번호<span class="required">*</span></label>
+      <input type="password" id="inputPassword" placeholder="관리자 비밀번호를 입력하세요" />
+    </div>
+    <button class="btn btn-primary" id="btnLogin">로그인</button>
+  </section>
+
+  <!-- 목록 화면 -->
+  <section class="hidden" id="listSection">
+    <div class="card">
+      <div class="admin-toolbar">
+        <input type="text" id="searchInput" placeholder="사번 / 성명 / 부서 검색" />
+        <select id="filterRound">
+          <option value="">전체 접수회차</option>
+        </select>
+        <select id="filterCompany">
+          <option value="">전체 희망금융사</option>
+        </select>
+        <button class="btn btn-secondary" id="btnRefresh">새로고침</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="result-count" id="resultCount"></div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>접수회차</th>
+              <th>제출일시</th>
+              <th>사번</th>
+              <th>성명</th>
+              <th>부서</th>
+              <th>직급</th>
+              <th>희망금융사</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 상세보기 모달 -->
+<div class="modal-backdrop hidden" id="detailModal">
+  <div class="modal">
+    <table class="summary-table" id="detailTable"></table>
+    <button class="btn btn-secondary" id="btnCloseModal" style="margin-top: 14px;">닫기</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>

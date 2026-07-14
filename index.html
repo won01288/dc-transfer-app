@@ -1,0 +1,104 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DB → DC 퇴직연금 제도전환 신청</title>
+<link rel="stylesheet" href="css/styles.css" />
+
+<div class="page">
+  <div class="banner">
+    <h1>DB → DC 퇴직연금 제도전환 신청자 세부내용 확인</h1>
+    <p>본 페이지는 DB→DC 퇴직연금 제도전환을 신청하신 분들의 세부 내용을 확인하기 위한 페이지입니다.</p>
+    <div class="meta">
+      <span>퇴직연금 간사기관: 교보생명</span>
+      <span id="roundDisplay">접수회차: 불러오는 중...</span>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" data-step="1">사번확인</div>
+    <div class="step" data-step="2">인적사항</div>
+    <div class="step" data-step="3">금융사선택</div>
+    <div class="step" data-step="4">확인/제출</div>
+  </div>
+
+  <!-- 1단계: 사번 확인 -->
+  <section class="card" id="step1">
+    <h2>1. 사번 확인</h2>
+    <div id="verifyMessage"></div>
+    <div class="field">
+      <label>사번<span class="required">*</span></label>
+      <input type="text" id="inputEmpId" inputmode="numeric" placeholder="사번을 입력하세요" />
+    </div>
+    <div class="field">
+      <label>성명<span class="required">*</span></label>
+      <input type="text" id="inputName" placeholder="성명을 입력하세요" />
+    </div>
+    <button class="btn btn-primary" id="btnVerify">확인</button>
+  </section>
+
+  <!-- 2단계: 인적사항 -->
+  <section class="card hidden" id="step2">
+    <h2>2. 인적사항 입력</h2>
+    <div class="field">
+      <label>사번</label>
+      <input type="text" id="viewEmpId" readonly />
+    </div>
+    <div class="field">
+      <label>성명</label>
+      <input type="text" id="viewName" readonly />
+    </div>
+    <div class="field">
+      <label>부서<span class="required">*</span></label>
+      <input type="text" id="inputDept" placeholder="소속 부서를 입력하세요" />
+    </div>
+    <div class="field">
+      <label>직위<span class="required">*</span></label>
+      <input type="text" id="inputPosition" placeholder="직위를 입력하세요" />
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" data-back="1">이전</button>
+      <button class="btn btn-primary" id="btnStep2Next">다음</button>
+    </div>
+  </section>
+
+  <!-- 3단계: 금융사 선택 -->
+  <section class="card hidden" id="step3">
+    <h2>3. DC 적용 희망 금융사</h2>
+    <div class="radio-list" id="companyList"></div>
+    <div class="field hidden" id="companyOtherWrap" style="margin-top: 12px;">
+      <label>기타 금융사명<span class="required">*</span></label>
+      <input type="text" id="inputCompanyOther" placeholder="희망하는 금융사명을 입력하세요" />
+    </div>
+    <div class="btn-row" style="margin-top: 14px;">
+      <button class="btn btn-secondary" data-back="2">이전</button>
+      <button class="btn btn-primary" id="btnStep3Next">다음</button>
+    </div>
+  </section>
+
+  <!-- 4단계: 확인 및 제출 -->
+  <section class="card hidden" id="step4">
+    <h2>4. 입력 내용 확인</h2>
+    <table class="summary-table">
+      <tr><th>사번</th><td id="sumEmpId"></td></tr>
+      <tr><th>성명</th><td id="sumName"></td></tr>
+      <tr><th>부서</th><td id="sumDept"></td></tr>
+      <tr><th>직위</th><td id="sumPosition"></td></tr>
+      <tr><th>희망 금융사</th><td id="sumCompany"></td></tr>
+    </table>
+    <div id="submitMessage" style="margin-top: 14px;"></div>
+    <div class="btn-row" style="margin-top: 14px;">
+      <button class="btn btn-secondary" data-back="3">이전</button>
+      <button class="btn btn-primary" id="btnSubmit">제출하기</button>
+    </div>
+  </section>
+
+  <!-- 완료 화면 -->
+  <section class="card hidden center" id="stepDone">
+    <div class="complete-icon">✅</div>
+    <h2>제출이 완료되었습니다</h2>
+    <p id="doneAt" class="hint"></p>
+  </section>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>

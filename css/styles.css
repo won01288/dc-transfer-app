@@ -1,0 +1,344 @@
+:root {
+  --color-primary: #1f5aa6;
+  --color-primary-dark: #164174;
+  --color-bg: #f4f6f9;
+  --color-card: #ffffff;
+  --color-border: #e0e4ea;
+  --color-text: #222831;
+  --color-muted: #6b7280;
+  --color-error: #d64545;
+  --color-success: #1f8a4c;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+  min-height: 100vh;
+}
+
+/* 상단 안내 배너 */
+.banner {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  margin-bottom: 16px;
+}
+
+.banner h1 {
+  font-size: 1.15rem;
+  margin: 0 0 8px;
+}
+
+.banner p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  opacity: 0.92;
+}
+
+.banner .meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  border-top: 1px solid rgba(255,255,255,0.25);
+  padding-top: 8px;
+}
+
+/* 진행 단계 표시 */
+.steps {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.steps .step {
+  flex: 1;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  padding-bottom: 6px;
+  border-bottom: 3px solid var(--color-border);
+}
+
+.steps .step.active {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 700;
+}
+
+.steps .step.done {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+/* 카드 */
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  font-size: 1rem;
+  margin: 0 0 14px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.field .required {
+  color: var(--color-error);
+  margin-left: 2px;
+}
+
+.field input[type="text"],
+.field input[type="password"] {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.field input.invalid {
+  border-color: var(--color-error);
+  background: #fff5f5;
+}
+
+.field .hint {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+
+.field input:read-only {
+  background: #f0f2f5;
+  color: var(--color-muted);
+}
+
+/* 라디오 리스트 (금융사 선택) */
+.radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.radio-item input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.radio-item.selected {
+  border-color: var(--color-primary);
+  background: #eef4fb;
+}
+
+.radio-item .radio-note {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+/* 버튼 */
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 13px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  background: #a9bdd6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* 메시지 */
+.message {
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.message.error {
+  background: #fdecec;
+  color: var(--color-error);
+}
+
+.message.success {
+  background: #e9f7ee;
+  color: var(--color-success);
+}
+
+/* 리뷰 요약 */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.summary-table th, .summary-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.summary-table th {
+  width: 38%;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.center {
+  text-align: center;
+}
+
+.complete-icon {
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+}
+
+/* 관리자 페이지 전용 */
+.admin-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.admin-toolbar select,
+.admin-toolbar input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+table.admin-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 640px;
+  font-size: 0.85rem;
+}
+
+table.admin-table th, table.admin-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  text-align: left;
+}
+
+table.admin-table th {
+  background: #f0f2f5;
+  position: sticky;
+  top: 0;
+}
+
+table.admin-table tr:hover {
+  background: #f7f9fc;
+  cursor: pointer;
+}
+
+.result-count {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+
+/* 상세보기 모달 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 14px 14px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 20px 16px 24px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 540px) {
+  .modal-backdrop {
+    align-items: center;
+  }
+  .modal {
+    border-radius: 14px;
+  }
+}
