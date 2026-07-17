@@ -46,13 +46,15 @@ class Connection:
 
 
 def connect():
-    database_url = os.environ.get("TURSO_DATABASE_URL")
-    auth_token = os.environ.get("TURSO_AUTH_TOKEN")
+    # 대시보드에 복사/붙여넣기 하는 과정에서 앞뒤 공백이나 줄바꿈이 섞여 들어가면
+    # Turso가 "JWT error: InvalidToken"으로 거부하므로 strip()으로 방어한다.
+    database_url = (os.environ.get("TURSO_DATABASE_URL") or "").strip()
+    auth_token = (os.environ.get("TURSO_AUTH_TOKEN") or "").strip()
     if not database_url:
         raise RuntimeError(
             "TURSO_DATABASE_URL 환경변수가 설정되어 있지 않습니다. "
             "Turso 대시보드에서 발급받은 데이터베이스 URL과 인증 토큰을 "
             "TURSO_DATABASE_URL / TURSO_AUTH_TOKEN 환경변수로 설정해주세요."
         )
-    raw = libsql.connect(database=database_url, auth_token=auth_token or "")
+    raw = libsql.connect(database=database_url, auth_token=auth_token)
     return Connection(raw)
