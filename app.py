@@ -341,6 +341,7 @@ def admin_master_delete_all(db, body):
         return {"success": False, "message": "인증이 필요합니다. 다시 로그인해주세요."}
 
     db.execute("DELETE FROM employees")
+    db.execute("DELETE FROM submissions")
     db.commit()
     return {"success": True}
 
@@ -370,6 +371,7 @@ def admin_master_delete(db, body):
         return {"success": False, "message": "사번이 필요합니다."}
 
     db.execute("DELETE FROM employees WHERE emp_id = ?", (emp_id,))
+    db.execute("DELETE FROM submissions WHERE emp_id = ?", (emp_id,))
     db.commit()
     return {"success": True}
 
