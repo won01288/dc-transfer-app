@@ -154,6 +154,146 @@ $("btnShowManage").addEventListener("click", async () => {
   $("listView").classList.add("hidden");
   $("manageView").classList.remove("hidden");
   await loadMasterList();
+  await loadWithdrawalManage();
+});
+
+// ------------------------------------------------------------------
+// 중도인출 안내 관리
+// ------------------------------------------------------------------
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text ?? "";
+  return div.innerHTML;
+}
+
+function sectionEditorHtml(section, sectionIdx) {
+  const heading = section.heading || "";
+  const items = (section.items || []).join("\n");
+  return `
+    <div class="wd-section-row" data-section-idx="${sectionIdx}">
+      <button class="btn-icon-remove wd-remove-section" type="button" title="섹션 삭제">−</button>
+      <div class="field">
+        <label>섹션 제목 (예: 공통서류)</label>
+        <input type="text" class="wd-section-heading" value="${escapeHtml(heading)}" />
+      </div>
+      <div class="field">
+        <label>서류 항목 (한 줄에 하나씩 입력)</label>
+        <textarea class="wd-section-items" rows="4">${escapeHtml(items)}</textarea>
+      </div>
+    </div>
+  `;
+}
+
+function reasonCardHtml(reason) {
+  const sections = (reason.sections || [])
+    .map((s, i) => sectionEditorHtml(s, i))
+    .join("");
+  return `
+    <div class="card wd-reason-card" data-reason-key="${escapeHtml(reason.reasonKey)}">
+      <h2>중도인출 안내 - ${escapeHtml(reason.title)}</h2>
+      <div class="withdrawal-edit-message"></div>
+      <div class="field">
+        <label>제목</label>
+        <input type="text" class="wd-title" value="${escapeHtml(reason.title)}" />
+      </div>
+      <div class="field">
+        <label>요약 설명 (■ 신청기준 / 신청시기 / 필요서류 등, 줄바꿈 가능)</label>
+        <textarea class="wd-summary" rows="5">${escapeHtml(reason.summary)}</textarea>
+      </div>
+      <div class="wd-sections">${sections}</div>
+      <button class="btn btn-secondary wd-add-section" type="button">+ 섹션 추가</button>
+      <button class="btn btn-primary wd-save" type="button" style="margin-top: 12px;">이 사유 저장</button>
+    </div>
+  `;
+}
+
+async function loadWithdrawalManage() {
+  try {
+    const res = await callApi("adminWithdrawalList", { password: adminPassword });
+    if (!res.success) return;
+
+    $("inputWithdrawalIntro").value = res.intro || "";
+    $("withdrawalReasonsWrap").innerHTML = (res.reasons || [])
+      .map(reasonCardHtml)
+      .join("");
+
+    bindWithdrawalReasonCards();
+  } catch (err) {
+    showMessage("withdrawalIntroMessage", "중도인출 안내를 불러오지 못했습니다: " + err.message, "error");
+  }
+}
+
+function bindWithdrawalReasonCards() {
+  document.querySelectorAll(".wd-reason-card").forEach((card) => {
+    card.querySelector(".wd-add-section").addEventListener("click", () => {
+      const wrap = card.querySelector(".wd-sections");
+      const nextIdx = wrap.querySelectorAll(".wd-section-row").length;
+      wrap.insertAdjacentHTML("beforeend", sectionEditorHtml({ heading: "", items: [] }, nextIdx));
+    });
+
+    card.querySelector(".wd-sections").addEventListener("click", (e) => {
+      if (e.target.classList.contains("wd-remove-section")) {
+        e.target.closest(".wd-section-row").remove();
+      }
+    });
+
+    card.querySelector(".wd-save").addEventListener("click", async () => {
+      await saveWithdrawalReason(card);
+    });
+  });
+}
+
+async function saveWithdrawalReason(card) {
+  const reasonKey = card.dataset.reasonKey;
+  const title = card.querySelector(".wd-title").value.trim();
+  const summary = card.querySelector(".wd-summary").value.trim();
+  const sections = [...card.querySelectorAll(".wd-section-row")]
+    .map((row) => ({
+      heading: row.querySelector(".wd-section-heading").value.trim(),
+      items: row
+        .querySelector(".wd-section-items")
+        .value.split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    }))
+    .filter((s) => s.heading && s.items.length > 0);
+
+  const msgEl = card.querySelector(".withdrawal-edit-message");
+  const saveBtn = card.querySelector(".wd-save");
+  saveBtn.disabled = true;
+  saveBtn.textContent = "저장 중...";
+
+  try {
+    const res = await callApi("adminWithdrawalUpdate", {
+      password: adminPassword,
+      reasonKey,
+      title,
+      summary,
+      sections,
+    });
+    msgEl.innerHTML = res.success
+      ? `<div class="message success">저장되었습니다.</div>`
+      : `<div class="message error">${res.message || "저장에 실패했습니다."}</div>`;
+  } catch (err) {
+    msgEl.innerHTML = `<div class="message error">저장 중 오류: ${err.message}</div>`;
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "이 사유 저장";
+  }
+}
+
+$("btnSaveWithdrawalIntro").addEventListener("click", async () => {
+  const withdrawalIntro = $("inputWithdrawalIntro").value.trim();
+  try {
+    const res = await callApi("adminConfigUpdate", { password: adminPassword, withdrawalIntro });
+    showMessage(
+      "withdrawalIntroMessage",
+      res.success ? "저장되었습니다." : res.message || "저장에 실패했습니다.",
+      res.success ? "success" : "error"
+    );
+  } catch (err) {
+    showMessage("withdrawalIntroMessage", "저장 중 오류: " + err.message, "error");
+  }
 });
 
 // 접수회차 저장
