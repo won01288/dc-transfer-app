@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
-from flask import Flask, g, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import db_client
@@ -22,22 +22,22 @@ DEFAULT_ADMIN_PASSWORD = "admin1234"
 
 app = Flask(__name__, static_folder=None)
 
+# 요청마다 새 커넥션을 만들지 않고 프로세스 전체에서 하나만 재사용한다.
+# (libsql은 커넥션마다 내부 Tokio 스레드풀을 새로 만드는데, 요청마다 만들고
+# 닫기를 반복하면 리소스가 빠듯한 환경에서 스레드 정리 중 데드락 패닉이 나서
+# 워커가 통째로 멈추는 문제가 있었음)
+_db = None
+
 
 def get_db():
-    if "db" not in g:
-        g.db = db_client.connect()
-    return g.db
-
-
-@app.teardown_appcontext
-def close_db(exception=None):
-    db = g.pop("db", None)
-    if db is not None:
-        db.close()
+    global _db
+    if _db is None:
+        _db = db_client.connect()
+    return _db
 
 
 def init_db():
-    db = db_client.connect()
+    db = get_db()
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS employees (
@@ -74,7 +74,6 @@ def init_db():
         )
         db.execute("INSERT OR IGNORE INTO config (key, value) VALUES ('round', '')")
         db.commit()
-    db.close()
 
 
 # ------------------------------------------------------------------
