@@ -41,6 +41,12 @@ body {
   min-height: 100vh;
 }
 
+@media (min-width: 768px) {
+  .page {
+    max-width: clamp(480px, 50vw, 900px);
+  }
+}
+
 /* 상단 안내 배너: 컬러 블록 대신 흰 배경 + 하단 보더 */
 .banner {
   background: var(--color-surface);
