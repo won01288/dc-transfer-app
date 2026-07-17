@@ -38,6 +38,11 @@
     </div>
   </section>
 
+  <!-- 카드 밖의 보조 액션: 사번+성명으로 최종 제출 내역만 조회 -->
+  <div class="quick-check">
+    <button class="btn-light" id="btnMySubmission">신청정보 확인하기</button>
+  </div>
+
   <!-- 2단계: 인적사항 -->
   <section class="card hidden" id="step2">
     <h2>2. 인적사항 입력</h2>
@@ -100,6 +105,31 @@
     <h2>제출이 완료됐어요!</h2>
     <p id="doneAt" class="hint"></p>
   </section>
+
+  <div class="admin-link">
+    <a href="admin.html">관리자 페이지</a>
+  </div>
+</div>
+
+<!-- 신청정보 확인하기 모달 -->
+<div class="modal-backdrop hidden" id="mySubmissionModal">
+  <div class="modal">
+    <h2>나의 신청 정보 확인</h2>
+    <div id="mySubmissionModalMessage"></div>
+    <div class="field">
+      <label>사번<span class="required">*</span></label>
+      <input type="text" id="modalEmpId" inputmode="numeric" placeholder="사번을 입력하세요" />
+    </div>
+    <div class="field">
+      <label>성명<span class="required">*</span></label>
+      <input type="text" id="modalName" placeholder="성명을 입력하세요" />
+    </div>
+    <table class="summary-table hidden" id="mySubmissionTable" style="margin-top: 4px;"></table>
+    <div class="action-bar btn-row">
+      <button class="btn btn-secondary" id="btnMySubmissionModalClose">닫기</button>
+      <button class="btn btn-primary" id="btnMySubmissionModalSearch">조회</button>
+    </div>
+  </div>
 </div>
 
 <script src="js/config.js"></script>

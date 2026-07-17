@@ -319,6 +319,11 @@ body {
   color: var(--color-success);
 }
 
+.message.info {
+  background: var(--color-accent-light);
+  color: var(--color-text-primary);
+}
+
 /* 리뷰 요약 */
 .summary-table {
   width: 100%;
@@ -349,6 +354,52 @@ body {
 .complete-icon {
   font-size: 2.4rem;
   margin-bottom: 8px;
+}
+
+/* 카드 밖의 보조 액션 버튼(신청정보 확인하기): 카드 안 primary 버튼보다 옅은 톤 */
+.quick-check {
+  text-align: center;
+  margin: 4px 0 20px;
+}
+
+.btn-light {
+  display: inline-block;
+  width: auto;
+  height: 46px;
+  padding: 0 24px;
+  border: 1px solid var(--color-accent-light);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-light);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, background-color 0.15s;
+}
+
+.btn-light:active {
+  transform: scale(0.97);
+}
+
+.btn-light:hover {
+  background: #efe0b8;
+}
+
+/* 페이지 하단의 작은 관리자 페이지 이동 링크 */
+.admin-link {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.admin-link a {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.admin-link a:hover {
+  text-decoration: underline;
 }
 
 /* 관리자 페이지 전용 */
@@ -413,6 +464,61 @@ table.admin-table tr:hover {
   font-size: 0.82rem;
   color: var(--color-text-secondary);
   margin-bottom: 8px;
+}
+
+/* 사번마스터 개별 추가 입력 줄 */
+.master-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.master-add-row input {
+  flex: 1 1 100px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  background: var(--color-surface);
+}
+
+.master-add-row input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-light);
+}
+
+.master-add-row .btn {
+  width: auto;
+  height: 44px;
+  flex: 0 0 auto;
+  padding: 0 18px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 20px 0;
+}
+
+.btn-icon-remove {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-error);
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-icon-remove:hover {
+  background: #fdecec;
+  border-color: var(--color-error);
 }
 
 /* 상세보기 모달 */

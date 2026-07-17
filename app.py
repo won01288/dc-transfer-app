@@ -216,6 +216,39 @@ def submit_application(db, body):
     return {"success": True, "submittedAt": now}
 
 
+def get_my_submission(db, body):
+    # 여러 번 수정 제출했더라도 submissions 테이블에는 최신 값으로 덮어써서
+    # 저장되므로(emp_id 기준 UPSERT), 그냥 조회만 하면 최종 제출 내용이 나온다.
+    verify = verify_employee(db, body.get("empId"), body.get("name"))
+    if not verify["success"]:
+        return verify
+
+    emp_id = verify["employee"]["empId"]
+    row = db.execute(
+        "SELECT * FROM submissions WHERE emp_id = ?", (emp_id,)
+    ).fetchone()
+    if row is None:
+        return {"success": True, "submission": None}
+
+    company = (
+        f'{row["company"]} ({row["company_other"]})'
+        if row["company_other"]
+        else (row["company"] or "")
+    )
+    return {
+        "success": True,
+        "submission": {
+            "empId": row["emp_id"],
+            "name": row["name"] or "",
+            "dept": row["dept"] or "",
+            "position": row["position"] or "",
+            "company": company,
+            "round": row["round"] or "",
+            "submittedAt": row["submitted_at"] or "",
+        },
+    }
+
+
 # ------------------------------------------------------------------
 # 관리자 - 제출 목록 조회
 # ------------------------------------------------------------------
@@ -312,12 +345,42 @@ def admin_master_delete_all(db, body):
     return {"success": True}
 
 
+def admin_master_add(db, body):
+    if not check_admin_password(db, body.get("password")):
+        return {"success": False, "message": "인증이 필요합니다. 다시 로그인해주세요."}
+
+    emp_id = str(body.get("empId") or "").strip()
+    name = str(body.get("name") or "").strip()
+    if not emp_id or not name:
+        return {"success": False, "message": "사번과 성명은 필수입니다."}
+
+    dept = str(body.get("dept") or "").strip()
+    position = str(body.get("position") or "").strip()
+    _upsert_employee(db, emp_id, name, dept, position)
+    db.commit()
+    return {"success": True}
+
+
+def admin_master_delete(db, body):
+    if not check_admin_password(db, body.get("password")):
+        return {"success": False, "message": "인증이 필요합니다. 다시 로그인해주세요."}
+
+    emp_id = str(body.get("empId") or "").strip()
+    if not emp_id:
+        return {"success": False, "message": "사번이 필요합니다."}
+
+    db.execute("DELETE FROM employees WHERE emp_id = ?", (emp_id,))
+    db.commit()
+    return {"success": True}
+
+
 # ------------------------------------------------------------------
 # 라우트
 # ------------------------------------------------------------------
 ACTIONS = {
     "verify": lambda db, body: verify_employee(db, body.get("empId"), body.get("name")),
     "submit": submit_application,
+    "mySubmission": get_my_submission,
     "config": lambda db, body: get_config(db),
     "adminLogin": lambda db, body: admin_login(db, body.get("password")),
     "adminList": admin_list,
@@ -325,6 +388,8 @@ ACTIONS = {
     "adminMasterList": admin_master_list,
     "adminMasterImportCsv": admin_master_import_csv,
     "adminMasterDeleteAll": admin_master_delete_all,
+    "adminMasterAdd": admin_master_add,
+    "adminMasterDelete": admin_master_delete,
 }
 
 

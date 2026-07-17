@@ -107,6 +107,67 @@ $("btnVerify").addEventListener("click", async () => {
   }
 });
 
+// 카드 밖 보조 액션: 신청정보 확인하기 모달 열기 (사번/성명은 모달 안에서 별도로 입력받음)
+$("btnMySubmission").addEventListener("click", () => {
+  $("modalEmpId").value = "";
+  $("modalName").value = "";
+  $("modalEmpId").classList.remove("invalid");
+  $("modalName").classList.remove("invalid");
+  showMessage("mySubmissionModalMessage", "", "");
+  $("mySubmissionTable").classList.add("hidden");
+  $("mySubmissionModal").classList.remove("hidden");
+});
+
+$("btnMySubmissionModalClose").addEventListener("click", () => {
+  $("mySubmissionModal").classList.add("hidden");
+});
+
+$("btnMySubmissionModalSearch").addEventListener("click", async () => {
+  const empId = $("modalEmpId").value.trim();
+  const name = $("modalName").value.trim();
+
+  $("modalEmpId").classList.remove("invalid");
+  $("modalName").classList.remove("invalid");
+
+  if (!empId || !name) {
+    if (!empId) $("modalEmpId").classList.add("invalid");
+    if (!name) $("modalName").classList.add("invalid");
+    showMessage("mySubmissionModalMessage", "사번과 성명을 모두 입력해주세요.", "error");
+    return;
+  }
+
+  $("btnMySubmissionModalSearch").disabled = true;
+  $("btnMySubmissionModalSearch").textContent = "조회 중...";
+  $("mySubmissionTable").classList.add("hidden");
+
+  try {
+    const res = await callApi("mySubmission", { empId, name });
+
+    if (!res.success) {
+      showMessage("mySubmissionModalMessage", res.message, "error");
+    } else if (res.submission) {
+      const s = res.submission;
+      const dt = s.submittedAt ? new Date(s.submittedAt).toLocaleString("ko-KR") : "";
+      $("mySubmissionTable").innerHTML = `
+        <tr><th>제출일시</th><td>${dt}</td></tr>
+        <tr><th>접수회차</th><td>${s.round || ""}</td></tr>
+        <tr><th>부서</th><td>${s.dept}</td></tr>
+        <tr><th>직위</th><td>${s.position}</td></tr>
+        <tr><th>희망 금융사</th><td>${s.company}</td></tr>
+      `;
+      showMessage("mySubmissionModalMessage", "", "");
+      $("mySubmissionTable").classList.remove("hidden");
+    } else {
+      showMessage("mySubmissionModalMessage", "아직 제출한 신청 내역이 없어요. 닫기 후 사번확인부터 신규로 입력해주세요.", "info");
+    }
+  } catch (err) {
+    showMessage("mySubmissionModalMessage", "확인 중 오류가 발생했습니다: " + err.message, "error");
+  } finally {
+    $("btnMySubmissionModalSearch").disabled = false;
+    $("btnMySubmissionModalSearch").textContent = "조회";
+  }
+});
+
 // 2단계: 인적사항 -> 3단계
 $("btnStep2Next").addEventListener("click", () => {
   const dept = $("inputDept").value.trim();

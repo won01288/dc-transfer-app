@@ -153,7 +153,7 @@ $("btnShowList").addEventListener("click", () => {
 $("btnShowManage").addEventListener("click", async () => {
   $("listView").classList.add("hidden");
   $("manageView").classList.remove("hidden");
-  await loadMasterCount();
+  await loadMasterList();
 });
 
 // 접수회차 저장
@@ -194,15 +194,87 @@ $("btnSavePassword").addEventListener("click", async () => {
   }
 });
 
-// 사번마스터 현재 등록 인원 수 표시
-async function loadMasterCount() {
+// 사번마스터 목록 조회 (등록 인원 수 + 테이블)
+let masterRows = [];
+
+async function loadMasterList() {
   try {
     const res = await callApi("adminMasterList", { password: adminPassword });
-    $("masterCount").textContent = res.success ? `현재 등록 인원: ${res.rows.length}명` : "";
+    if (res.success) {
+      masterRows = res.rows;
+      $("masterCount").textContent = `현재 등록 인원: ${masterRows.length}명`;
+      renderMasterTable();
+    } else {
+      $("masterCount").textContent = "";
+    }
   } catch (err) {
     $("masterCount").textContent = "";
   }
 }
+
+function renderMasterTable() {
+  $("masterTableBody").innerHTML = masterRows
+    .map(
+      (r) => `
+        <tr>
+          <td>${r.empId}</td>
+          <td>${r.name}</td>
+          <td>${r.dept}</td>
+          <td>${r.position}</td>
+          <td><button class="btn-icon-remove" data-remove-emp-id="${r.empId}">−</button></td>
+        </tr>
+      `
+    )
+    .join("");
+
+  $("masterTableBody").querySelectorAll("[data-remove-emp-id]").forEach((btn) => {
+    btn.addEventListener("click", () => removeMasterRow(btn.dataset.removeEmpId));
+  });
+}
+
+async function removeMasterRow(empId) {
+  if (!confirm(`사번 ${empId}을(를) 사번마스터에서 삭제하시겠습니까?`)) return;
+  try {
+    const res = await callApi("adminMasterDelete", { password: adminPassword, empId });
+    if (res.success) {
+      showMessage("masterMessage", "삭제되었습니다.", "success");
+      await loadMasterList();
+    } else {
+      showMessage("masterMessage", res.message || "삭제에 실패했습니다.", "error");
+    }
+  } catch (err) {
+    showMessage("masterMessage", "삭제 중 오류: " + err.message, "error");
+  }
+}
+
+// 사번마스터 1명 추가/수정
+$("btnAddMaster").addEventListener("click", async () => {
+  const empId = $("inputAddEmpId").value.trim();
+  const name = $("inputAddName").value.trim();
+  const dept = $("inputAddDept").value.trim();
+  const position = $("inputAddPosition").value.trim();
+
+  if (!empId || !name) {
+    showMessage("masterMessage", "사번과 성명은 필수입니다.", "error");
+    return;
+  }
+
+  try {
+    const res = await callApi("adminMasterAdd", { password: adminPassword, empId, name, dept, position });
+    if (res.success) {
+      showMessage("masterMessage", "추가되었습니다.", "success");
+      $("inputAddEmpId").value = "";
+      $("inputAddName").value = "";
+      $("inputAddDept").value = "";
+      $("inputAddPosition").value = "";
+      await loadMasterList();
+    } else {
+      showMessage("masterMessage", res.message || "추가에 실패했습니다.", "error");
+    }
+  } catch (err) {
+    showMessage("masterMessage", "추가 중 오류: " + err.message, "error");
+  }
+});
 
 // CSV 붙여넣기로 사번마스터 일괄 등록/업데이트 (기존 사번은 덮어씀)
 $("btnImportMaster").addEventListener("click", async () => {
@@ -216,7 +288,7 @@ $("btnImportMaster").addEventListener("click", async () => {
     if (res.success) {
       showMessage("masterMessage", `${res.count}명 등록/업데이트 완료`, "success");
       $("inputMasterCsv").value = "";
-      await loadMasterCount();
+      await loadMasterList();
     } else {
       showMessage("masterMessage", res.message || "등록에 실패했습니다.", "error");
     }
@@ -232,7 +304,7 @@ $("btnDeleteAllMaster").addEventListener("click", async () => {
     const res = await callApi("adminMasterDeleteAll", { password: adminPassword });
     if (res.success) {
       showMessage("masterMessage", "전체 삭제되었습니다.", "success");
-      await loadMasterCount();
+      await loadMasterList();
     } else {
       showMessage("masterMessage", res.message || "삭제에 실패했습니다.", "error");
     }

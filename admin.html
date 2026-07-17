@@ -89,6 +89,32 @@
         <h2>사번마스터 관리</h2>
         <p class="hint" id="masterCount"></p>
         <div id="masterMessage"></div>
+
+        <div class="master-add-row">
+          <input type="text" id="inputAddEmpId" placeholder="사번" />
+          <input type="text" id="inputAddName" placeholder="성명" />
+          <input type="text" id="inputAddDept" placeholder="부서" />
+          <input type="text" id="inputAddPosition" placeholder="직급" />
+          <button class="btn btn-primary" id="btnAddMaster">+ 추가</button>
+        </div>
+
+        <div class="table-wrap" style="margin-top: 12px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>사번</th>
+                <th>성명</th>
+                <th>부서</th>
+                <th>직급</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="masterTableBody"></tbody>
+          </table>
+        </div>
+
+        <hr class="divider" />
+
         <div class="field">
           <label>CSV 붙여넣기 (사번,성명,부서,직급 순서로 한 줄에 한 명씩)</label>
           <textarea id="inputMasterCsv" rows="6" placeholder="10001,홍길동,인사팀,과장&#10;10002,김철수,생산팀,대리"></textarea>
