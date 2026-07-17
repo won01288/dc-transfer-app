@@ -164,6 +164,28 @@ body {
   margin-top: 4px;
 }
 
+.hint {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 10px;
+}
+
+.field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-light);
+}
+
 .field input:read-only {
   background: var(--color-surface-muted);
   color: var(--color-text-secondary);

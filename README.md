@@ -1,99 +1,99 @@
 # DB → DC 퇴직연금 제도전환 신청 웹페이지 - 설정 가이드
 
 plan.md 기획에 따라 만든 신청자 페이지(index.html) / 관리자 페이지(admin.html) /
-백엔드(apps-script/Code.gs)입니다. 아래 순서대로 설정하면 바로 사용할 수 있습니다.
+백엔드(app.py, Flask)입니다.
 
-## 1. Google Sheets 만들기
+> **왜 Google Apps Script를 안 쓰나요?**
+> 원래는 Google Apps Script + Google Sheets로 만들었는데, 일부 회사 사내망에서
+> `script.google.com` 도메인 자체를 보안 정책으로 차단해서 신청자가 "Failed to fetch"
+> 오류를 겪는 문제가 확인됐습니다. 같은 사내망에서 `pythonanywhere.com`은 정상 동작하는
+> 것을 확인해서, 백엔드를 Python(Flask) + PythonAnywhere로 옮겼습니다. 데이터도
+> Google Sheets 대신 서버 자체 DB(SQLite, 파일 하나로 동작하는 가벼운 데이터베이스)에
+> 저장하고, 관리자 페이지에서 직접 관리합니다.
 
-1. Google Drive에서 새 스프레드시트를 만들고 이름을 정합니다. (예: "DC전환신청_관리")
-2. 하단에 시트(탭) 3개를 아래 이름 그대로 만듭니다.
-
-### 시트1: `제출데이터`
-1행(헤더)에 아래 순서대로 입력:
-```
-사번 | 성명 | 부서 | 직급 | 희망금융사 | 희망금융사_기타 | 접수회차 | 제출일시 | 이전제출일시
-```
-
-### 시트2: `사번마스터`
-1행(헤더):
-```
-사번 | 성명 | 부서 | 직급
-```
-2행부터 이번 접수 대상자의 사번/성명을 미리 입력해두세요. (부서/직급은 있으면 자동입력용, 없어도 됨)
-**이 시트에 없는 사번은 신청자 페이지에서 검증 실패 처리됩니다.**
-
-### 시트3: `설정`
-**1행은 항목명(헤더), 2행에 실제 값**을 입력합니다. (세로로 나열하는 방식이 아님에 주의)
-```
-A1: 관리자비밀번호   B1: 현재접수회차
-A2: (원하는 비밀번호) B2: 2026-08
-```
-예: A1에 `관리자비밀번호`, B1에 `현재접수회차`를 적고, 그 아래 2행에 각각 실제 비밀번호와
-접수회차 값을 입력합니다.
-
-## 2. Apps Script 백엔드 배포
-
-1. 방금 만든 스프레드시트에서 상단 메뉴 **확장 프로그램 > Apps Script** 클릭
-2. 기본으로 열려있는 `Code.gs` 내용을 모두 지우고, 이 저장소의
-   `apps-script/Code.gs` 내용을 그대로 붙여넣기
-3. 저장(Ctrl+S)
-4. 우측 상단 **배포 > 새 배포**
-5. 톱니바퀴(유형 선택) 클릭 → **웹앱** 선택
-6. 설정:
-   - 실행할 사용자: **나**
-   - 액세스 권한이 있는 사용자: **모든 사용자** (익명 신청자도 접속해야 하므로)
-7. **배포** 클릭 → 처음 실행 시 Google이 권한 승인을 요구하면 본인 계정으로 승인
-8. 배포 완료 후 나오는 **웹앱 URL**을 복사 (`https://script.google.com/macros/s/.../exec` 형태)
-
-> 이후 Code.gs를 수정하면 "배포 > 배포 관리 > 수정(연필 아이콘) > 새 버전"으로
-> 다시 배포해야 반영됩니다. URL은 그대로 유지됩니다.
-
-## 3. 프런트엔드에 URL 연결
-
-`js/config.js` 파일을 열어서 아래 줄의 값을 방금 복사한 웹앱 URL로 교체합니다.
-```js
-const API_URL = "여기에_APPS_SCRIPT_웹앱_URL을_붙여넣으세요";
-```
-
-## 4. 로컬에서 테스트
-
-별도 서버 없이도 index.html을 더블클릭해서 브라우저로 열어 테스트 가능합니다.
-(단, 파일을 직접 열면 일부 브라우저에서 fetch가 막힐 수 있으니, 안 되면 아래처럼
-간단한 로컬 서버로 열어보세요)
+## 1. 로컬에서 먼저 테스트하기
 
 ```powershell
-# 프로젝트 폴더에서
-python -m http.server 8000
-# 브라우저에서 http://localhost:8000 접속
+# 프로젝트 폴더에서 (최초 1회만)
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+
+# 서버 실행
+python app.py
 ```
 
-## 5. GitHub Pages 배포
+`python app.py`를 실행하면 `http://127.0.0.1:5000` 에서 신청자 페이지가,
+`http://127.0.0.1:5000/admin.html` 에서 관리자 페이지가 열립니다.
+최초 실행 시 `dc_transfer.db` 파일이 자동 생성되고, 관리자 비밀번호는
+**`admin1234`** 로 초기화됩니다. (로그인 후 바로 변경하세요. 아래 3번 참고)
 
-1. 이 저장소를 GitHub에 push
-2. 저장소 **Settings > Pages**
-3. Source를 `main` 브랜치 / `/ (root)`로 설정 후 저장
-4. 몇 분 뒤 `https://<계정명>.github.io/<저장소명>/` 주소로 접속 가능
-5. 신청자에게는 `.../index.html`(또는 루트 주소), 관리자에게는 `.../admin.html` 안내
+## 2. PythonAnywhere에 배포하기
 
-## 6. 접수 운영 (plan.md 5장 참고)
+1. [pythonanywhere.com](https://www.pythonanywhere.com) 무료(Beginner) 계정 생성
+2. 상단 **Consoles > Bash** 콘솔을 열고 저장소를 내려받습니다.
+   ```bash
+   git clone https://github.com/won01288/dc-transfer-app.git
+   cd dc-transfer-app
+   pip install --user -r requirements.txt
+   ```
+   (GitHub에 아직 push하지 않았다면, **Files** 탭에서 파일을 직접 업로드해도 됩니다)
+3. 상단 **Web** 탭 > **Add a new web app** > 도메인은 무료 제공 주소(`계정명.pythonanywhere.com`) 선택
+   > **Framework**: "Manual configuration" 선택 (Flask 자동설정이 아니라 우리 코드를 직접 연결) → Python 버전은 3.10 이상 선택
+4. **Web** 탭의 **Code** 섹션에서:
+   - **Source code**: `/home/계정명/dc-transfer-app`
+   - **WSGI configuration file** 링크 클릭 → 파일 내용을 아래처럼 수정
+   ```python
+   import sys
+   path = '/home/계정명/dc-transfer-app'
+   if path not in sys.path:
+       sys.path.insert(0, path)
 
-- **접수 시작 전**: `사번마스터` 시트에 이번 회차 대상자 사번+성명 입력, `설정` 시트의
-  `현재접수회차` 값을 이번 회차로 업데이트 (예: `2026-08`)
-- **접수 진행 중**: 관리자 페이지(admin.html)에서 실시간으로 제출 현황 확인
-- **접수 종료 후**: `사번마스터` 시트 내용을 삭제하면 이후 접근 시 검증 실패로
-  자동 차단됩니다. `제출데이터`는 삭제하지 말고 그대로 보존하세요.
-- 엑셀로 내보내고 싶으면 스프레드시트에서 **파일 > 다운로드 > Microsoft Excel**
-  사용 (별도 기능 개발 없음)
+   from app import app as application
+   ```
+5. **Web** 탭 상단의 **Reload** 버튼 클릭
+6. `https://계정명.pythonanywhere.com/` 접속해서 신청자 페이지가 뜨는지 확인
+
+> Code.gs 때처럼 코드를 수정하면, PythonAnywhere Bash 콘솔에서 `git pull` 로 최신 코드를
+> 받은 뒤 **Web** 탭에서 다시 **Reload** 를 눌러야 반영됩니다.
+
+## 3. 최초 배포 후 꼭 해야 할 것
+
+1. `admin.html`(`.../admin.html`) 접속 → 기본 비밀번호 `admin1234`로 로그인
+2. **설정 / 사번마스터 관리** 화면에서
+   - **관리자 비밀번호 변경**: 새 비밀번호로 즉시 교체
+   - **접수 설정**: 현재접수회차 입력 (예: `2026-08`)
+   - **사번마스터 관리**: 기존 Google Sheets에서 관리하던 대상자 명단을
+     `파일 > 다운로드 > CSV`로 내보낸 뒤, **헤더 행(첫 줄)은 지우고** 아래 형식으로
+     붙여넣고 "일괄 등록/업데이트" 클릭
+     ```
+     사번,성명,부서,직급
+     10001,홍길동,인사팀,과장
+     10002,김철수,생산팀,대리
+     ```
+     (부서/직급은 비워도 되지만 사번·성명은 필수입니다. 같은 사번을 다시 넣으면 값이 덮어써집니다)
+
+## 4. 접수 운영 (plan.md 5장 참고)
+
+- **접수 시작 전**: 관리자 페이지에서 이번 회차 대상자 사번마스터 CSV 등록, 현재접수회차 값 업데이트
+- **접수 진행 중**: 관리자 페이지 "신청 목록"에서 실시간 제출 현황 확인/검색/필터
+- **접수 종료 후**: "사번마스터 관리 > 전체 삭제"를 누르면 이후 접근 시 검증 실패로
+  자동 차단됩니다. 제출 목록은 삭제되지 않고 그대로 남습니다.
+- 제출 데이터는 `dc_transfer.db` 파일(SQLite)에 저장됩니다. 개인정보가 담긴 파일이므로
+  **git에 커밋되지 않도록 `.gitignore`에 이미 등록**해뒀고, 필요 시 PythonAnywhere
+  **Files** 탭에서 이 파일을 다운로드해 백업할 수 있습니다.
 
 ## 파일 구조
 
 ```
 index.html          신청자 페이지
-admin.html           관리자 페이지
-css/styles.css        공통 스타일 (모바일 반응형)
-js/config.js          API_URL 설정
-js/api.js             Apps Script 호출 공통 함수
-js/app.js             신청자 페이지 로직
-js/admin.js           관리자 페이지 로직
-apps-script/Code.gs    Apps Script 백엔드 (Google Sheets에 붙여넣을 코드)
+admin.html            관리자 페이지
+css/styles.css         공통 스타일 (모바일 반응형)
+js/config.js           API_URL 설정 (기본값 "/api", 보통 수정할 필요 없음)
+js/api.js              백엔드 호출 공통 함수
+js/app.js              신청자 페이지 로직
+js/admin.js             관리자 페이지 로직
+app.py                 Flask 백엔드 (API + 정적 파일 서빙)
+requirements.txt        Python 패키지 목록
+dc_transfer.db          SQLite DB 파일 (최초 실행 시 자동 생성, git에는 커밋 안 함)
 ```

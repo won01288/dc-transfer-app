@@ -144,6 +144,103 @@ $("filterRound").addEventListener("change", applyFilters);
 $("filterCompany").addEventListener("change", applyFilters);
 $("btnRefresh").addEventListener("click", loadList);
 
+// 신청 목록 <-> 설정/사번마스터 관리 화면 전환
+$("btnShowList").addEventListener("click", () => {
+  $("listView").classList.remove("hidden");
+  $("manageView").classList.add("hidden");
+});
+
+$("btnShowManage").addEventListener("click", async () => {
+  $("listView").classList.add("hidden");
+  $("manageView").classList.remove("hidden");
+  await loadMasterCount();
+});
+
+// 접수회차 저장
+$("btnSaveRound").addEventListener("click", async () => {
+  const round = $("inputRound").value.trim();
+  try {
+    const res = await callApi("adminConfigUpdate", { password: adminPassword, round });
+    showMessage(
+      "configMessage",
+      res.success ? "저장되었습니다." : res.message || "저장에 실패했습니다.",
+      res.success ? "success" : "error"
+    );
+  } catch (err) {
+    showMessage("configMessage", "저장 중 오류: " + err.message, "error");
+  }
+});
+
+// 관리자 비밀번호 변경
+$("btnSavePassword").addEventListener("click", async () => {
+  const newPassword = $("inputNewPassword").value;
+  if (!newPassword) {
+    showMessage("configMessage", "새 비밀번호를 입력해주세요.", "error");
+    return;
+  }
+  try {
+    const res = await callApi("adminConfigUpdate", { password: adminPassword, newPassword });
+    if (res.success) {
+      // 방금 바꾼 비밀번호로 세션을 갱신해야 이후 요청도 계속 인증됨
+      adminPassword = newPassword;
+      sessionStorage.setItem("adminPassword", newPassword);
+      $("inputNewPassword").value = "";
+      showMessage("configMessage", "비밀번호가 변경되었습니다.", "success");
+    } else {
+      showMessage("configMessage", res.message || "변경에 실패했습니다.", "error");
+    }
+  } catch (err) {
+    showMessage("configMessage", "변경 중 오류: " + err.message, "error");
+  }
+});
+
+// 사번마스터 현재 등록 인원 수 표시
+async function loadMasterCount() {
+  try {
+    const res = await callApi("adminMasterList", { password: adminPassword });
+    $("masterCount").textContent = res.success ? `현재 등록 인원: ${res.rows.length}명` : "";
+  } catch (err) {
+    $("masterCount").textContent = "";
+  }
+}
+
+// CSV 붙여넣기로 사번마스터 일괄 등록/업데이트 (기존 사번은 덮어씀)
+$("btnImportMaster").addEventListener("click", async () => {
+  const csv = $("inputMasterCsv").value.trim();
+  if (!csv) {
+    showMessage("masterMessage", "CSV 내용을 입력해주세요.", "error");
+    return;
+  }
+  try {
+    const res = await callApi("adminMasterImportCsv", { password: adminPassword, csv });
+    if (res.success) {
+      showMessage("masterMessage", `${res.count}명 등록/업데이트 완료`, "success");
+      $("inputMasterCsv").value = "";
+      await loadMasterCount();
+    } else {
+      showMessage("masterMessage", res.message || "등록에 실패했습니다.", "error");
+    }
+  } catch (err) {
+    showMessage("masterMessage", "등록 중 오류: " + err.message, "error");
+  }
+});
+
+// 사번마스터 전체 삭제 (접수 종료 후 검증 차단 용도)
+$("btnDeleteAllMaster").addEventListener("click", async () => {
+  if (!confirm("사번마스터 전체를 삭제하시겠습니까? 이후 신청자 검증이 모두 실패 처리됩니다.")) return;
+  try {
+    const res = await callApi("adminMasterDeleteAll", { password: adminPassword });
+    if (res.success) {
+      showMessage("masterMessage", "전체 삭제되었습니다.", "success");
+      await loadMasterCount();
+    } else {
+      showMessage("masterMessage", res.message || "삭제에 실패했습니다.", "error");
+    }
+  } catch (err) {
+    showMessage("masterMessage", "삭제 중 오류: " + err.message, "error");
+  }
+});
+
 // 이미 로그인 되어 있으면(같은 탭에서 새로고침) 바로 목록 화면으로
 if (adminPassword) {
   $("loginSection").classList.add("hidden");

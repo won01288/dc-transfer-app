@@ -1,16 +1,10 @@
-// Apps Script 웹앱과 통신하는 공통 함수
-// Content-Type을 "text/plain"으로 보내는 이유:
-// application/json으로 보내면 브라우저가 먼저 OPTIONS(preflight) 요청을 보내는데,
-// Apps Script 웹앱은 이 요청을 처리하지 못해 CORS 오류가 발생합니다.
-// text/plain으로 보내면 preflight 없이 바로 요청이 전달됩니다.
+// Flask 백엔드(app.py)와 통신하는 공통 함수
+// 프론트엔드와 백엔드가 같은 출처(same-origin)에서 서빙되므로 CORS 프리플라이트가
+// 발생하지 않아 표준 JSON 형식을 그대로 사용할 수 있습니다.
 async function callApi(action, payload) {
-  if (!API_URL || API_URL.indexOf("http") !== 0) {
-    throw new Error("API_URL이 설정되지 않았습니다. js/config.js를 확인해주세요.");
-  }
-
   const res = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, ...payload }),
   });
 

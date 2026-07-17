@@ -25,34 +25,76 @@
   <section class="hidden" id="listSection">
     <div class="card">
       <div class="admin-toolbar">
-        <input type="text" id="searchInput" placeholder="사번 / 성명 / 부서 검색" />
-        <select id="filterRound">
-          <option value="">전체 접수회차</option>
-        </select>
-        <select id="filterCompany">
-          <option value="">전체 희망금융사</option>
-        </select>
-        <button class="btn btn-secondary" id="btnRefresh">새로고침</button>
+        <button class="btn btn-secondary" id="btnShowList">신청 목록</button>
+        <button class="btn btn-secondary" id="btnShowManage">설정 / 사번마스터 관리</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="result-count" id="resultCount"></div>
-      <div class="table-wrap">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>접수회차</th>
-              <th>제출일시</th>
-              <th>사번</th>
-              <th>성명</th>
-              <th>부서</th>
-              <th>직급</th>
-              <th>희망금융사</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+    <div id="listView">
+      <div class="card">
+        <div class="admin-toolbar">
+          <input type="text" id="searchInput" placeholder="사번 / 성명 / 부서 검색" />
+          <select id="filterRound">
+            <option value="">전체 접수회차</option>
+          </select>
+          <select id="filterCompany">
+            <option value="">전체 희망금융사</option>
+          </select>
+          <button class="btn btn-secondary" id="btnRefresh">새로고침</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="result-count" id="resultCount"></div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>접수회차</th>
+                <th>제출일시</th>
+                <th>사번</th>
+                <th>성명</th>
+                <th>부서</th>
+                <th>직급</th>
+                <th>희망금융사</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="hidden" id="manageView">
+      <div class="card">
+        <h2>접수 설정</h2>
+        <div id="configMessage"></div>
+        <div class="field">
+          <label>현재접수회차</label>
+          <input type="text" id="inputRound" placeholder="예: 2026-08" />
+        </div>
+        <button class="btn btn-primary" id="btnSaveRound">접수회차 저장</button>
+      </div>
+
+      <div class="card">
+        <h2>관리자 비밀번호 변경</h2>
+        <div class="field">
+          <label>새 비밀번호</label>
+          <input type="password" id="inputNewPassword" placeholder="새 비밀번호를 입력하세요" />
+        </div>
+        <button class="btn btn-primary" id="btnSavePassword">비밀번호 변경</button>
+      </div>
+
+      <div class="card">
+        <h2>사번마스터 관리</h2>
+        <p class="hint" id="masterCount"></p>
+        <div id="masterMessage"></div>
+        <div class="field">
+          <label>CSV 붙여넣기 (사번,성명,부서,직급 순서로 한 줄에 한 명씩)</label>
+          <textarea id="inputMasterCsv" rows="6" placeholder="10001,홍길동,인사팀,과장&#10;10002,김철수,생산팀,대리"></textarea>
+        </div>
+        <button class="btn btn-primary" id="btnImportMaster">일괄 등록/업데이트</button>
+        <button class="btn btn-secondary" id="btnDeleteAllMaster" style="margin-top: 8px;">전체 삭제 (접수 종료 시)</button>
       </div>
     </div>
   </section>

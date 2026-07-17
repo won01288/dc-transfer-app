@@ -1,4 +1,3 @@
-// Google Apps Script 웹앱 배포 후 발급되는 URL을 여기에 붙여넣으세요.
-// 예: https://script.google.com/macros/s/AKfycb.../exec
-// (apps-script/Code.gs 를 Apps Script 프로젝트에 붙여넣고 "웹앱으로 배포"한 뒤 나오는 주소입니다)
-const API_URL = "https://script.google.com/macros/s/AKfycbzW7rwRGluTjURCSUEBYneljvrw2iNcWHGk5kYFq1hEW6pLnaq1I2EIBJ1HzS27IDc/exec";
+// Flask 백엔드(app.py)와 프론트엔드가 같은 도메인(PythonAnywhere)에서 함께 서빙되므로
+// 절대 주소가 아닌 상대 경로만 써도 됩니다. 배포 주소가 바뀌어도 이 값은 그대로 두면 됩니다.
+const API_URL = "/api";
