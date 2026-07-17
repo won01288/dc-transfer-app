@@ -1,17 +1,23 @@
 # DB → DC 퇴직연금 제도전환 신청 - Flask 백엔드
 # Google Apps Script를 대체합니다. 프론트엔드(index.html/admin.html)도
 # 이 서버가 함께 서빙하므로 별도 CORS 설정이 필요 없습니다.
+# 데이터는 로컬 SQLite 파일이 아니라 Turso(libSQL)에 저장합니다. 호스팅(Render 등)
+# 무료 티어는 재배포/재시작마다 디스크가 초기화될 수 있어, DB를 앱과 분리해야
+# 데이터가 안전합니다. 자세한 배포 방법은 README.md 참고.
 import csv
 import io
 import os
-import sqlite3
 from datetime import datetime
 
+from dotenv import load_dotenv
 from flask import Flask, g, jsonify, request, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import db_client
+
+load_dotenv()
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "dc_transfer.db")
 DEFAULT_ADMIN_PASSWORD = "admin1234"
 
 app = Flask(__name__, static_folder=None)
@@ -19,8 +25,7 @@ app = Flask(__name__, static_folder=None)
 
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DB_PATH)
-        g.db.row_factory = sqlite3.Row
+        g.db = db_client.connect()
     return g.db
 
 
@@ -32,7 +37,7 @@ def close_db(exception=None):
 
 
 def init_db():
-    db = sqlite3.connect(DB_PATH)
+    db = db_client.connect()
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS employees (
