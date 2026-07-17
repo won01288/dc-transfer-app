@@ -7,7 +7,7 @@
 import csv
 import io
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory
@@ -19,6 +19,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_ADMIN_PASSWORD = "admin1234"
+KST = timezone(timedelta(hours=9))  # 호스팅 서버가 UTC로 돌아가도 제출 시각은 항상 한국 시간으로 기록
 
 app = Flask(__name__, static_folder=None)
 
@@ -182,7 +183,7 @@ def submit_application(db, body):
     ).fetchone()
     prev_submitted_at = existing["submitted_at"] if existing else ""
 
-    now = datetime.now().isoformat()
+    now = datetime.now(KST).isoformat()
     round_value = get_config_map(db).get("round", "")
 
     db.execute(
